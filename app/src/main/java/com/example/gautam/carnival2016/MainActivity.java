@@ -1,7 +1,10 @@
 package com.example.gautam.carnival2016;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -235,64 +238,91 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    class uploadDataClass extends AsyncTask<String,String,String> {
+    public boolean isConnectingToInternet(){
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
+
+    class uploadDataClass extends AsyncTask<String,String,Boolean> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected void onPostExecute(Boolean aBoolean) {
 
-            Log.d("state","1");
-            try{
-
-                Cursor res = mydb.getAllData();
-                while(res.moveToNext()) {
-                    String flatnum = res.getString(0);
-                    String name = res.getString(1);
-                    String cont = res.getString(2);
-                    String mobile = res.getString(3);
-                    // Create http cliient object to send request to server
-                    BufferedReader reader = null;
-                    URL url = new URL("http://skacarnival.16mb.com/?flat="+flatnum+"&name="+name+"&cont="+cont+"&ph="+mobile);
-                    HttpURLConnection connection =(HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    Log.d("state","2");
-                    connection.connect();
-                    // Closing the output stream.
-                    Log.d("state","3");
-
-                    // Read the input stream into a String
-                    InputStream inputStream = connection.getInputStream();
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream == null) {
-                        // Nothing to do.
-                        return null;
-                    }
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                        // But it does make debugging a *lot* easier if you print out the completed
-                        // buffer for debugging.
-                        buffer.append(line + "\n");
-                    }
-
-                    if (buffer.length() == 0) {
-                        // Stream was empty.  No point in parsing.
-                        return null;
-                    }
-                    String forecastJsonStr = buffer.toString();
-                    Log.d("input stream",forecastJsonStr);
-
-                    if(forecastJsonStr.equals("ok")){
-                        Log.d("ok test","i m here");
-                        //mydb.deleteData(flatnum);
-                    }
-                }
-
-            }catch (Exception e){
-                Log. d("erroe=",e.getMessage());
+            if(!aBoolean){
+                Toast.makeText(MainActivity.this,"!! NO INTERNET CONNECTION !!",Toast.LENGTH_LONG).show();
             }
-            return null;
+            else{
+                Toast.makeText(MainActivity.this,"!! SERVER UPDATED SUCCESFULLY !!",Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            if (!isConnectingToInternet()) {
+                return false;
+            } else {
+                Log.d("state", "1");
+                try {
+
+                    Cursor res = mydb.getAllData();
+                    while (res.moveToNext()) {
+                        String flatnum = res.getString(0);
+                        String name = res.getString(1);
+                        String cont = res.getString(2);
+                        String mobile = res.getString(3);
+                        // Create http cliient object to send request to server
+                        BufferedReader reader = null;
+                        URL url = new URL("http://skacarnival.16mb.com/?flat=" + flatnum + "&name=" + name + "&cont=" + cont + "&ph=" + mobile);
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("GET");
+                        Log.d("state", "2");
+                        connection.connect();
+                        // Closing the output stream.
+                        Log.d("state", "3");
+
+                        // Read the input stream into a String
+                        InputStream inputStream = connection.getInputStream();
+                        StringBuffer buffer = new StringBuffer();
+                        if (inputStream == null) {
+                            // Nothing to do.
+                            return null;
+                        }
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                            // But it does make debugging a *lot* easier if you print out the completed
+                            // buffer for debugging.
+                            buffer.append(line + "\n");
+                        }
+
+                        if (buffer.length() == 0) {
+                            // Stream was empty.  No point in parsing.
+                            return null;
+                        }
+                        String forecastJsonStr = buffer.toString();
+                        Log.d("input stream", forecastJsonStr);
+
+                        if (forecastJsonStr.equals("ok")) {
+                            Log.d("ok test", "i m here");
+                            //mydb.deleteData(flatnum);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Log.d("erroe=", e.getMessage());
+                }
+                return true;
+            }
         }
     }
 }
+//EOF
