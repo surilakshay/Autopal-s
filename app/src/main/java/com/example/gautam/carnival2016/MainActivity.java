@@ -1,14 +1,18 @@
 package com.example.gautam.carnival2016;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -55,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                        boolean isInserted = mydb.insertData(editflat.getText().toString(),editname.getText().toString(),editcont.getText().toString(),editph.getText().toString());
                         if(isInserted == true){
+                            editflat.setText("");
+                            editname.setText("");
+                            editcont.setText("");
+                            editph.setText("");
+
                             Toast.makeText(MainActivity.this,"Data Inserted Succesfully!!",Toast.LENGTH_LONG).show();
                         }
                         else{
@@ -109,13 +118,48 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        boolean isupdated=mydb.updateData(editflat.getText().toString(),editname.getText().toString(),editcont.getText().toString(),editph.getText().toString());
-                        if(isupdated==true){
-                            Toast.makeText(MainActivity.this,"Data Updated Succesfully!!",Toast.LENGTH_LONG).show();
-                        }
-                        else{
-                            Toast.makeText(MainActivity.this,"!! Data NOT Inserted !!",Toast.LENGTH_LONG).show();
-                        }
+
+
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setCancelable(true);
+                        builder.setTitle("Volunteer Password ");
+                        //builder.setMessage(Message);
+                        final EditText input = new EditText(MainActivity.this);
+                        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                        // LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        //        LinearLayout.LayoutParams.MATCH_PARENT,
+                        //        LinearLayout.LayoutParams.MATCH_PARENT);
+                        // input.setLayoutParams(lp);
+                        builder.setView(input);
+                        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do work
+                                String pass = input.getText().toString();
+                                String x = new String("karma");
+                                if(pass.equals(x)){
+                                    boolean isupdated=mydb.updateData(editflat.getText().toString(),editname.getText().toString(),editcont.getText().toString(),editph.getText().toString());
+                                    if(isupdated==true){
+                                        Toast.makeText(MainActivity.this,"Data Updated Succesfully!!",Toast.LENGTH_LONG).show();
+                                    }
+                                    else{
+                                        Toast.makeText(MainActivity.this,"!! Data NOT Inserted !!",Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                                else{
+                                    Toast.makeText(MainActivity.this,"!! Authorisation Failed !!",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+
                     }
                 }
         );
@@ -128,15 +172,47 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Integer deletedrows = mydb.deleteData(editflat.getText().toString());
-                        if (deletedrows>0){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setCancelable(true);
+                        builder.setTitle("Administrator Password ");
+                        //builder.setMessage(Message);
+                        final EditText input = new EditText(MainActivity.this);
+                        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                       // LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        //        LinearLayout.LayoutParams.MATCH_PARENT,
+                        //        LinearLayout.LayoutParams.MATCH_PARENT);
+                       // input.setLayoutParams(lp);
+                        builder.setView(input);
+                        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do work
+                                String pass = input.getText().toString();
+                                String x = new String("bazinga");
+                                if(pass.equals(x)){
+                                    Integer deletedrows = mydb.deleteData(editflat.getText().toString());
+                                    if (deletedrows>0){
 
-                            Toast.makeText(MainActivity.this,"Data Deleted Succesfully!!",Toast.LENGTH_LONG).show();
-                        }
-                        else{
+                                        Toast.makeText(MainActivity.this,"Data Deleted Succesfully!!",Toast.LENGTH_LONG).show();
+                                    }
+                                    else{
 
-                            Toast.makeText(MainActivity.this,"!! Data NOT Deleted !!",Toast.LENGTH_LONG).show();
-                        }
+                                        Toast.makeText(MainActivity.this,"!! Data NOT Deleted !!",Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                                else{
+                                    Toast.makeText(MainActivity.this,"!! Authorisation Failed !!",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+
                     }
                 }
         );
@@ -158,14 +234,15 @@ public class MainActivity extends AppCompatActivity {
         );
 
     }
+
     class uploadDataClass extends AsyncTask<String,String,String> {
 
         @Override
         protected String doInBackground(String... params) {
+
             Log.d("state","1");
-
-
             try{
+
                 Cursor res = mydb.getAllData();
                 while(res.moveToNext()) {
                     String flatnum = res.getString(0);
@@ -181,8 +258,6 @@ public class MainActivity extends AppCompatActivity {
                     connection.connect();
                     // Closing the output stream.
                     Log.d("state","3");
-
-
 
                     // Read the input stream into a String
                     InputStream inputStream = connection.getInputStream();
