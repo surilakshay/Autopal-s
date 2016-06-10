@@ -167,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
     }
-
     public void deleteData(){
 
         btndelete.setOnClickListener(
@@ -230,8 +229,41 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                            uploadDataClass up = new uploadDataClass();
-                        up.execute("");
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setCancelable(true);
+                        builder.setTitle("Enter Password To Upload ");
+                        //builder.setMessage(Message);
+                        final EditText input = new EditText(MainActivity.this);
+                        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                        // LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        //        LinearLayout.LayoutParams.MATCH_PARENT,
+                        //        LinearLayout.LayoutParams.MATCH_PARENT);
+                        // input.setLayoutParams(lp);
+                        builder.setView(input);
+                        builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //do work
+                                String pass = input.getText().toString();
+                                String x = new String("karma");
+                                if(pass.equals(x)){
+                                    uploadDataClass up = new uploadDataClass();
+                                    up.execute("");
+                                    Toast.makeText(MainActivity.this,"!! Authorisation Successful ! Uploading Data...  !!",Toast.LENGTH_LONG).show();
+                                }
+                                else{
+                                    Toast.makeText(MainActivity.this,"!! Authorisation Failed !!",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
                     }
                 }
         );
@@ -255,9 +287,33 @@ public class MainActivity extends AppCompatActivity {
 
             if(!aBoolean){
                 Toast.makeText(MainActivity.this,"!! NO INTERNET CONNECTION !!",Toast.LENGTH_LONG).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setCancelable(true);
+                builder.setTitle("NO INTERNET CONNECTION");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //do nothing
+                    }
+                });
+                builder.setMessage("Please Check your Internet Connection.");
+                builder.show();
             }
             else{
                 Toast.makeText(MainActivity.this,"!! SERVER UPDATED SUCCESFULLY !!",Toast.LENGTH_LONG).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setCancelable(true);
+                builder.setTitle("SERVER UPDATE SUCCESSFUL!");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        //do nothing
+                    }
+                });
+                builder.setMessage("All The Entries Have Been Successfully Updated To The Server.");
+                builder.show();
             }
 
         }
@@ -277,6 +333,18 @@ public class MainActivity extends AppCompatActivity {
                         String name = res.getString(1);
                         String cont = res.getString(2);
                         String mobile = res.getString(3);
+
+                        int l= name.length();
+                        for(int i=0;i<l;i++){
+
+                            if(name.charAt(i)==' '){
+
+                                // do work
+                                name = name.replace(" ","%20");
+                                l=name.length();
+                            }
+
+                        }
                         // Create http cliient object to send request to server
                         BufferedReader reader = null;
                         URL url = new URL("http://skacarnival.16mb.com/?flat=" + flatnum + "&name=" + name + "&cont=" + cont + "&ph=" + mobile);
