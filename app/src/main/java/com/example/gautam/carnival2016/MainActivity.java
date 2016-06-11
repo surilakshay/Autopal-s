@@ -60,17 +60,33 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       boolean isInserted = mydb.insertData(editflat.getText().toString(),editname.getText().toString(),editcont.getText().toString(),editph.getText().toString());
-                        if(isInserted == true){
-                            editflat.setText("");
-                            editname.setText("");
-                            editcont.setText("");
-                            editph.setText("");
+                        int phlen = editph.getText().toString().length();
+                        if(phlen != 10){
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setCancelable(true);
+                            builder.setTitle("Invalid Input !");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                            Toast.makeText(MainActivity.this,"Data Inserted Succesfully!!",Toast.LENGTH_LONG).show();
+                                    //do nothing
+                                }
+                            });
+                            builder.setMessage("Please Enter a Valid 10 digit mobile number.");
+                            builder.show();
                         }
-                        else{
-                            Toast.makeText(MainActivity.this,"Data exists already, you may edit this entry!!",Toast.LENGTH_LONG).show();
+                        else {
+                            boolean isInserted = mydb.insertData(editflat.getText().toString(), editname.getText().toString(), editcont.getText().toString(), editph.getText().toString());
+                            if (isInserted == true) {
+                                editflat.setText("");
+                                editname.setText("");
+                                editcont.setText("");
+                                editph.setText("");
+
+                                Toast.makeText(MainActivity.this, "Data Inserted Succesfully!!", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Data exists already, you may edit this entry!!", Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 }
